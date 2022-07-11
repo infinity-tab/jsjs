@@ -429,8 +429,8 @@ const evaluate_map: EvaluateMap = {
             const object = evaluate(node.callee.object, scope)
             return func.apply(object, args)
         } else {
-            const this_val = scope.$find('this')
-            return func.apply(this_val ? this_val.$get() : null, args)
+            // const this_val = scope.$find('this')
+            return func.apply(null, args)
         }
     },
 

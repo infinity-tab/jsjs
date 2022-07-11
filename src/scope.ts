@@ -9,6 +9,12 @@ export interface Var {
   // $call($this: any, args: Array<any>): any
 }
 
+const global =
+  // @ts-ignore
+  typeof globalThis !== 'undefined' ? globalThis :
+    typeof self !== 'undefined' ? self :
+      typeof window !== 'undefined' ? window :
+        {};
 export class ScopeVar implements Var {
   value: any
   kind: Kind
@@ -69,6 +75,8 @@ export class Scope {
     } else if (this.parent) {
       return this.parent.$find(raw_name)
     } else {
+      // root
+      if (raw_name in global) return new ScopeVar('const', global[raw_name])
       return null
     }
   }
@@ -77,16 +85,16 @@ export class Scope {
     const name = this.prefix + raw_name
     const $var = this.content[name]
     if (!$var) {
-      this.content[name] = new ScopeVar('let', value) 
+      this.content[name] = new ScopeVar('let', value)
       return true
     } else { return false }
   }
 
-  $const(raw_name: string, value: any): boolean { 
+  $const(raw_name: string, value: any): boolean {
     const name = this.prefix + raw_name
     const $var = this.content[name]
     if (!$var) {
-      this.content[name] = new ScopeVar('const', value) 
+      this.content[name] = new ScopeVar('const', value)
       return true
     } else { return false }
   }
@@ -101,7 +109,7 @@ export class Scope {
 
     const $var = scope.content[name]
     if (!$var) {
-      this.content[name] = new ScopeVar('var', value) 
+      this.content[name] = new ScopeVar('var', value)
       return true
     } else { return false }
   }
